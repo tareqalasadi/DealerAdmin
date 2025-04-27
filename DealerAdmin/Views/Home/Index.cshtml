@@ -1,0 +1,272 @@
+﻿@model DealerAdmin.Models.Property
+
+@{
+    ViewBag.Title = "Add Property or Category";
+    var categories = ViewBag.Categories as List<DealerAdmin.Models.PropertyCategory>;
+}
+
+<h2>Add Property or Category</h2>
+
+<!-- Buttons to toggle forms -->
+<div class="mb-3">
+    <button id="btnAddCategory" class="btn btn-primary">Add Category</button>
+    <button id="btnAddProperty" class="btn btn-secondary">Add Property</button>
+</div>
+
+<!-- Form 1: Add Category -->
+<div id="formAddCategory" style="display: none;">
+    <h4>Add Category</h4>
+    @using (Html.BeginForm("AddCategory", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="form-group">
+            <label for="NameEn">Name (EN)</label>
+            <input type="text" name="NameEn" class="form-control" placeholder="Enter English name" required />
+        </div>
+
+        <div class="form-group">
+            <label for="NameAr">Name (AR)</label>
+            <input type="text" name="NameAr" class="form-control" placeholder="Enter Arabic name" required />
+        </div>
+
+        <div class="form-group">
+            <label for="ImageFile">Category Image</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" required />
+            <small class="form-text text-muted">Upload an image for the category.</small>
+        </div>
+
+        <button type="submit" class="btn btn-success">Add Category</button>
+    }
+</div>
+
+<!-- Form 2: Add Property -->
+<div id="formAddProperty" style="display: none;">
+    <h4>Add Property</h4>
+    @using (Html.BeginForm("AddProperty", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <!-- City Dropdown -->
+        <div class="form-group">
+            <label for="Location">City</label>
+            <select id="Location" name="Location" class="form-control" required>
+                <option value="">-- Select City --</option>
+                <option value="Amman">Amman</option>
+                <option value="Irbid">Irbid</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="Area">Area</label>
+            <select id="Area" name="Area" class="form-control" required>
+                <option value="">-- Select Area --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="DescEn">Description (EN)</label>
+            @Html.TextBoxFor(m => m.DescEn, new { @class = "form-control", placeholder = "Enter English description", required = "required" })
+        </div>
+
+        <div class="form-group">
+            <label for="DescAr">Description (AR)</label>
+            @Html.TextBoxFor(m => m.DescAr, new { @class = "form-control", placeholder = "Enter Arabic description", required = "required" })
+        </div>
+
+        <div class="form-group">
+            <label for="CountBeds">Number of Beds</label>
+            @Html.TextBoxFor(m => m.CountBeds, new { @class = "form-control", type = "number", min = "0", required = "required" })
+        </div>
+
+        <div class="form-group">
+            <label for="CountBaths">Number of Baths</label>
+            @Html.TextBoxFor(m => m.CountBaths, new { @class = "form-control", type = "number", min = "0", required = "required" })
+        </div>
+
+        <div class="form-group">
+            <label for="Space">Space (m²)</label>
+            @Html.TextBoxFor(m => m.Space, new { @class = "form-control", type = "number", min = "0", required = "required" })
+        </div>
+        <div class="form-group">
+            <label for="Price">Price</label>
+            @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", step = "0.01", required = "required", min = "0" })
+        </div>
+
+        <div class="form-group">
+            <label for="CategoryId">Category</label>
+            <select name="CategoryId" class="form-control" required>
+                <option value="">-- Select Category --</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Id">@category.NameEn</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="MainImage">Main Image</label>
+            <input type="file" name="mainImage" id="MainImage" class="form-control" accept="image/*" required />
+            <small class="form-text text-muted">Upload the main image for the property.</small>
+            <div id="mainImagePreview" class="mt-2"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="Images">Additional Images</label>
+            <input type="file" name="images" id="Images" class="form-control" multiple accept="image/*" />
+            <small class="form-text text-muted">You can select multiple images by holding Ctrl (Windows) or Command (Mac).</small>
+            <div id="imagePreview" class="mt-2"></div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Add Property</button>
+    }
+</div>
+
+@section Scripts {
+    <script>
+
+              const areasByLocation = {
+                  amman: [
+          "Abdoun",
+          "Abu Nseir",
+          "Al-Abdali",
+          "Al-Jubeiha",
+          "Al-Madinah Al-Riyadiyah",
+          "Al-Madinah Al-Tijariyah",
+          "Al-Madinah Al-Sinaiyah",
+          "Al-Muqabalain",
+          "Al-Nasr",
+          "Al-Qweismeh",
+          "Al-Rabieh",
+          "Al-Yarmouk",
+          "Al-Yasmeen",
+          "Al-Zahra",
+          "Bader",
+          "Baq'a",
+          "Dabouq",
+          "Deir Ghbar",
+          "Hashemi Shamali",
+          "Hashemi Janoubi",
+          "Jabal Amman",
+          "Jabal Al-Hussein",
+          "Jabal Al-Luweibdeh",
+          "Jabal Al-Ashrafieh",
+          "Jabal Al-Taj",
+          "Khalda",
+          "Marj Al-Hamam",
+          "Marka",
+          "Medina Street (Downtown)",
+          "Ras Al-Ein",
+          "Shmeisani",
+          "Shafa Badran",
+          "Sports City",
+          "Sweifieh",
+          "Tabarbour",
+          "Tla'a Al-Ali",
+          "Um Uthaina",
+          "Wadi Al-Seer",
+          "Zahran",
+          "Al-Misdar",
+          "Al-Nuzha",
+          "Al-Quds",
+          "Al-Raween",
+          "Al-Sahab",
+          "Al-Swaifiyeh",
+          "Al-Wihdat",
+          "Al-Zaytoonah"
+        ],
+                 irbid: [
+          "Downtown (Al-Balad)",
+          "University District",
+          "alraahibat alwardiah",
+          "dahiat alhusayn",
+          "alhayu aljanubiu",
+          "Al-Qasabeh",
+          "Al-Sareeh",
+          "Nazzal",
+          "Al-Hashmi",
+          "Al-Sharqiya",
+          "Al-Gharbiya",
+          "Al-Yarmouk",
+          "Al-Rawda",
+          "Al-Wahda",
+          "Al-Quds",
+          "Al-Razi",
+          "Al-Salam",
+          "Al-Nasr",
+          "Al-Iskan",
+          "Al-Jame'a",
+          "Al-Mustaqbal",
+          "Al-Rashid",
+          "Al-Saada",
+          "Al-Zahra",
+          "Al-Mughtarebeen",
+          "Al-Husn",
+          "Al-Ramtha"
+        ]
+        };
+
+             // Populate Area dropdown based on City selection
+        $('#Location').change(function() {
+            const city = $(this).val().toLowerCase();
+            const $areaDropdown = $('#Area');
+
+            $areaDropdown.empty().append('<option value="">-- Select Area --</option>');
+
+            if (city && areasByLocation[city]) {
+                areasByLocation[city].forEach(area => {
+                    $areaDropdown.append(`<option value="${area}">${area}</option>`);
+                });
+            }
+        });
+        document.getElementById('btnAddCategory').addEventListener('click', function () {
+            document.getElementById('formAddCategory').style.display = 'block';
+            document.getElementById('formAddProperty').style.display = 'none';
+        });
+
+        document.getElementById('btnAddProperty').addEventListener('click', function () {
+            document.getElementById('formAddProperty').style.display = 'block';
+            document.getElementById('formAddCategory').style.display = 'none';
+        });
+
+        document.getElementById('MainImage').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('mainImagePreview');
+            previewContainer.innerHTML = '';
+
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '150px';
+                    img.style.margin = '10px';
+                    img.style.border = '1px solid #ccc';
+                    img.style.padding = '5px';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('Images').addEventListener('change', function (event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+
+            if (files) {
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '150px';
+                            img.style.margin = '10px';
+                            img.style.border = '1px solid #ccc';
+                            img.style.padding = '5px';
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+}
