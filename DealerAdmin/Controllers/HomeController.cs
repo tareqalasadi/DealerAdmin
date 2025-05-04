@@ -39,11 +39,27 @@ public class HomeController : Controller
     {
         if (imageFile != null && imageFile.Length > 0)
         {
-            using (var ms = new MemoryStream())
+            // Set your exact physical path
+            var folderPath = _IConfiguration["ImagePath"];
+
+            // Ensure the folder exists
+            if (!Directory.Exists(folderPath))
             {
-                await imageFile.CopyToAsync(ms);
-                category.Image = ms.ToArray();
+                Directory.CreateDirectory(folderPath);
             }
+
+            // Create a unique file name to avoid conflicts
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+            var filePath = Path.Combine(folderPath, fileName);
+
+            // Save the file to the specified path
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+
+            // Optionally set the relative image path for the category (if needed)
+            category.ImagePath = "~/images/MainImage/" + fileName;
         }
 
         using (var client = new HttpClient())
