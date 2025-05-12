@@ -11,6 +11,8 @@
 <div class="mb-3">
     <button id="btnAddCategory" class="btn btn-primary">Add Category</button>
     <button id="btnAddProperty" class="btn btn-secondary">Add Property</button>
+    <button id="btnShowProperties" class="btn btn-info">Show All Properties</button>
+
 </div>
 
 <!-- Form 1: Add Category -->
@@ -120,6 +122,9 @@
 
 @section Scripts {
     <script>
+                        document.getElementById("btnShowProperties").addEventListener("click", function () {
+            window.location.href = "/Home/PropertyRequests";
+        });
 
               const areasByLocation = {
                   amman: [

@@ -17,6 +17,52 @@ public class HomeController : Controller
         _httpClientFactory=httpClientFactory;
         _IConfiguration=configuration;
     }
+
+    public async Task<IActionResult> PropertyRequests()
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync(_IConfiguration["baseUrl"] + "GetAllPropertyRequests");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var data = JsonConvert.DeserializeObject<List<PropertyRequest>>(jsonString);
+            return View(data);
+        }
+
+        return View(new List<PropertyRequest>());
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> GetPropertyRequestById(int id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.GetAsync($"{_IConfiguration["baseUrl"]}GetPropertyRequestById/{id}");
+
+        if (!response.IsSuccessStatusCode)
+            return NotFound();
+
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ApprovePropertyRequest([FromBody] PropertyRequest propertyRequest)
+    {
+        var client = _httpClientFactory.CreateClient();
+
+        var json = JsonConvert.SerializeObject(propertyRequest);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync($"{_IConfiguration["baseUrl"]}ApprovePropertyRequest", content);
+
+        if (!response.IsSuccessStatusCode)
+            return BadRequest();
+
+        return Ok();
+    }
+
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -123,6 +169,12 @@ public class HomeController : Controller
             }
         }
 
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> PropertyRequests(Propertys property)
+    {
         return View();
     }
 }
